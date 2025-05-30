@@ -30,6 +30,19 @@ async function initializeTables() {
       )
     `;
     console.log("✅ Database tables initialized");
+    
+    // Add sample data if table is empty
+    const existingAds = await client`SELECT COUNT(*) FROM ads`;
+    if (existingAds[0].count === '0') {
+      await client`
+        INSERT INTO ads (title, description, category, location, email, urgency)
+        VALUES 
+        ('Potrebno čuvanje deteta sutra uveče', 'Trebam nekoga da mi čuva ćerku (5 godina) sutra od 19h do 23h. Dete je mirno, samo treba da bude neko tu dok ja ne stignem sa posla. Ćerka je navikla na bake pa nije problematična.', 'childcare', 'Novi Beograd', 'marija.s@example.com', 'medium'),
+        ('Montaža IKEA nameštaja', 'Kupio sam garderobnu kliznu u IKEA-i i trebam nekoga da mi je sastavi. Imam sav alat, samo fali znanje i vreme.', 'household', 'Zemun', 'stefan.m@example.com', 'low'),
+        ('Prevoz do aerodroma', 'Trebam prevoz od Vračara do aerodroma u četvrtak ujutru oko 6h. Mogu podeliti troškove goriva.', 'transport', 'Vračar', 'ana.p@example.com', 'high')
+      `;
+      console.log("✅ Sample data added");
+    }
   } catch (error) {
     console.error("❌ Error initializing database tables:", error);
   }

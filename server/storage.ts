@@ -10,8 +10,33 @@ export interface IStorage {
 }
 
 // Database connection
-const client = postgres(process.env.DATABASE_URL!);
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.rdrofqiviimajxmefrqc:H5SsG2%23ZGxAe%24%3Fz@aws-0-eu-central-1.pooler.supabase.com:6543/postgres";
+const client = postgres(DATABASE_URL);
 const db = drizzle(client);
+
+// Initialize database tables
+async function initializeTables() {
+  try {
+    await client`
+      CREATE TABLE IF NOT EXISTS "ads" (
+        "id" serial PRIMARY KEY NOT NULL,
+        "title" text NOT NULL,
+        "description" text NOT NULL,
+        "category" text NOT NULL,
+        "location" text NOT NULL,
+        "email" text NOT NULL,
+        "urgency" text DEFAULT 'medium' NOT NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL
+      )
+    `;
+    console.log("✅ Database tables initialized");
+  } catch (error) {
+    console.error("❌ Error initializing database tables:", error);
+  }
+}
+
+// Initialize tables on startup
+initializeTables();
 
 export class DbStorage implements IStorage {
   async getAds(filters?: { category?: string; location?: string; search?: string }): Promise<Ad[]> {
